@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"mime"
 	"net"
 	"net/http"
 	"sync"
@@ -131,14 +130,5 @@ func (s *combinedServer) CreateOrder(ctx context.Context, req *orderv1.CreateReq
 	log.Printf("Got a request to create a order: %v\n", name)
 
 	return &orderv1.CreateResponse{}, nil
-
-}
-
-func serveSwagger(mux *http.ServeMux) {
-	mime.AddExtensionType(".svg", "image/svg+xml")
-
-	prefix := "/gen/openapiv2/"
-
-	mux.Handle()
 
 }
