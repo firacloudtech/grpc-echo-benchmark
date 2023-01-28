@@ -33,34 +33,42 @@ service ProductService {
 }
 
 message CreateProductRequest {
+message CreateProductRequest {
 	string name = 1;
 }
 
+message CreateProductResponse {
 message CreateProductResponse {
   string message = 1;
 }
 
 message ReadProductRequest {
+message ReadProductRequest {
   string id = 1;
 }
 
 message ReadProductResponse {
+message ReadProductResponse {
   string name = 1;
 }
 
+message UpdateProductRequest {
 message UpdateProductRequest {
   string id = 1;
   string name = 2;
 }
 
 message UpdateProductResponse {
+message UpdateProductResponse {
   bool success = 1;
 }
 
 message DeleteProductRequest {
+message DeleteProductRequest {
   string id = 1;
 }
 
+message DeleteProductResponse {
 message DeleteProductResponse {
   bool success = 1;
 }

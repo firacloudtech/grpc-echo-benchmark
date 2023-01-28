@@ -13,8 +13,9 @@ require (
 )
 
 require (
-	buf.build/gen/go/firacloudtech/grpc-echo-benchmark/grpc/go v1.2.0-20230122134124-c7efdc22f76a.4
-	buf.build/gen/go/firacloudtech/grpc-echo-benchmark/protocolbuffers/go v1.28.1-20230122134124-c7efdc22f76a.4
-	github.com/grpc-ecosystem/grpc-gateway v1.16.0
+	buf.build/gen/go/firacloudtech/grpc-echo-benchmark/grpc/go v1.2.0-20230123160103-0a94928fc203.4
+	buf.build/gen/go/firacloudtech/grpc-echo-benchmark/protocolbuffers/go v1.28.1-20230123162638-21cf7e84720f.4
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.0
+	google.golang.org/genproto v0.0.0-20221207170731-23e4bf6bdc37
 	google.golang.org/grpc v1.51.0
 )
