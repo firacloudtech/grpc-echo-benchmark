@@ -7,52 +7,50 @@ import (
 	"net"
 	"net/http"
 	"sync"
-	"net/http"
 
 	// import module using buf
-	orderv1 "buf.build/gen/go/firacloudtech/grpc-echo-benchmark/protocolbuffers/go/order/v1"
-	productv1 "buf.build/gen/go/firacloudtech/grpc-echo-benchmark/protocolbuffers/go/product/v1"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	orderv1 "github.com/firacloudtech/grpc-echo-benchmark/gen/go/order/v1"
+	productv1 "github.com/firacloudtech/grpc-echo-benchmark/gen/go/product/v1"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	orderGrpc "buf.build/gen/go/firacloudtech/grpc-echo-benchmark/grpc/go/order/v1/orderv1grpc"
-	productGrpc "buf.build/gen/go/firacloudtech/grpc-echo-benchmark/grpc/go/product/v1/productv1grpc"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 )
 
 var (
 	port        = 5002
 	gatewayPort = 3001
+	wg          sync.WaitGroup
 )
 
 type combinedServer struct {
-	productGrpc.UnimplementedProductServiceServer
-	orderGrpc.UnimplementedOrderServiceServer
+	productv1.UnimplementedProductServiceServer
+	orderv1.UnimplementedOrderServiceServer
 }
 
-func NewServer() *combinedServer {
-	return &combinedServer{}
 func NewServer() *combinedServer {
 	return &combinedServer{}
 }
 
 func main() {
-
-	if err := run(); err != nil {
-		log.Fatal(err)
-	}
-
-	// wait till the grpc server is ready
-	done := make(chan struct{})
-
+	wg.Add(2)
+	go func() {
+		if err := run(); err != nil {
+			log.Fatal(err)
+		}
+		wg.Done()
+	}()
 	go func() {
 
 		if err := runGrpcGateway(); err != nil {
 			log.Fatal(err)
 		}
-		close(done)
+
+		wg.Done()
 	}()
-	<-done
+
+	wg.Wait()
 
 }
 
@@ -67,8 +65,8 @@ func run() error {
 
 	// Register the services
 	server := grpc.NewServer()
-	productGrpc.RegisterProductServiceServer(server, &combinedServer{})
-	orderGrpc.RegisterOrderServiceServer(server, &combinedServer{})
+	productv1.RegisterProductServiceServer(server, &combinedServer{})
+	orderv1.RegisterOrderServiceServer(server, &combinedServer{})
 
 	log.Println("Listening on port", grpcAddr)
 	if err := server.Serve(listener); err != nil {
@@ -77,27 +75,35 @@ func run() error {
 	}
 
 	return nil
+
 }
 
 func runGrpcGateway() error {
 	// grpc gateway server
 
-	gwmux := runtime.NewServeMux()
-	gwAddr := fmt.Sprintf("127.0.0.1:%d", gatewayPort)
-	gwServer := &http.Server{
-		Addr:    gwAddr,
-		Handler: gwmux,
-	}
-
-	conn, err := grpc.DialContext(context.Background(), fmt.Sprintf("127.0.0.1:%d", port), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock)
+	conn, err := grpc.DialContext(context.Background(), "127.0.0.1:5002", grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
 		log.Fatalln("Failed to dial server:", err)
 	}
+	defer conn.Close()
 
-	log.Println("Serving gRPC-gateway on http://localhost:", gatewayPort)
+	gwmux := runtime.NewServeMux()
+	err = productv1.RegisterProductServiceHandler(context.Background(), gwmux, conn)
 
-	if err := gwServer.ListenAndServe(); err != nil {
+	if err != nil {
+		log.Fatalln("Failed to register gateway:", err)
+	}
+
+	gwServer := &http.Server{
+		Addr:    fmt.Sprintf(":%v", gatewayPort),
+		Handler: gwmux,
+	}
+
+	log.Printf("Serving gRPC-gateway on http://127.0.0.1%v", gwServer.Addr)
+
+	err = gwServer.ListenAndServe()
+	if err != nil {
 		return fmt.Errorf("failed to serve gRPC gateway server: %w", err)
 	}
 
@@ -105,25 +111,24 @@ func runGrpcGateway() error {
 }
 
 // a function that creates a product and return the response
-func (s *combinedServer) CreateProduct(ctx context.Context, req *productv1.CreateRequest) (*productv1.CreateResponse, error) {
+func (s *combinedServer) CreateProduct(ctx context.Context, req *productv1.CreateProductRequest) (*productv1.CreateProductResponse, error) {
 
 	name := req.GetName()
 
 	log.Printf("Got a request to create a product: %v\n", name)
 
-	return &productv1.CreateResponse{
+	return &productv1.CreateProductResponse{
 		Message: "Success",
 	}, nil
 
 }
 
-func (s *combinedServer) CreateOrder(ctx context.Context, req *orderv1.CreateRequest) (*orderv1.CreateResponse, error) {
+func (s *combinedServer) CreateOrder(ctx context.Context, req *orderv1.CreateOrderRequest) (*orderv1.CreateOrderResponse, error) {
 
 	name := req.GetName()
 
 	log.Printf("Got a request to create a order: %v\n", name)
 
-	return &orderv1.CreateResponse{}, nil
-	return &orderv1.CreateResponse{}, nil
+	return &orderv1.CreateOrderResponse{}, nil
 
 }
