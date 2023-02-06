@@ -1,56 +1,56 @@
 syntax = "proto3";
 package product.v1;
 
-option go_package = "github.com/firacloudtech/grpc-echo-benchmark/proto/product";
-
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
+option go_package = "github.com/firacloudtech/grpc-echo-benchmark/proto/product";
+
 service ProductService {
-
-	rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse){
-		option (google.api.http)= {
-
-			post : "/api/v1/products/create",
-			body: "*"
-
-		};
-		option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) ={
-			 summary: "Add a product"
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/products/create",
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add a product"
       description: "Add a product to the server."
-		};
-	}
-	rpc ReadProduct(ReadProductRequest) returns (ReadProductResponse) {
-
-		option (google.api.http) = {
-			post : "/api/v1/products/read",
-			body: "*"
-		};
-	}
+    };
+  }
+  rpc ReadProduct(ReadProductRequest) returns (ReadProductResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/products/read",
+      body: "*"
+    };
+  }
   rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse) {}
   rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse) {}
 }
 
-
 message CreateProductRequest {
-	string name = 1;
+  string name = 1;
+  string description = 2;
+  float price = 3;
+  string category = 4;
+  string url = 5;
 }
-
 
 message CreateProductResponse {
-  string message = 1;
+  string id = 1;
+  string description = 2;
+  float price = 3;
+  string category = 4;
+  string url = 5;
+  string name = 6;
 }
-
 
 message ReadProductRequest {
   string id = 1;
 }
 
-
 message ReadProductResponse {
   string name = 1;
 }
-
 
 message UpdateProductRequest {
   string id = 1;
@@ -61,11 +61,9 @@ message UpdateProductResponse {
   bool success = 1;
 }
 
-
 message DeleteProductRequest {
   string id = 1;
 }
-
 
 message DeleteProductResponse {
   bool success = 1;
