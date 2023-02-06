@@ -3,8 +3,8 @@ package main
 import (
 	"strconv"
 
+	"github.com/firacloudtech/grpc-echo-benchmark/db"
 	"github.com/firacloudtech/grpc-echo-benchmark/echo-server/handler"
-	"github.com/firacloudtech/grpc-echo-benchmark/redis"
 	"github.com/labstack/echo/v4"
 )
 
@@ -14,7 +14,8 @@ const (
 
 func main() {
 
-	redis.InitRedis()
+	db.InitDB()
+	defer db.Db.Close()
 
 	e := echo.New()
 

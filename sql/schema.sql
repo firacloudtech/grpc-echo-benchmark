@@ -1,0 +1,20 @@
+CREATE TABLE orders (
+  id SERIAL PRIMARY KEY,
+  customer_id INTEGER NOT NULL,
+  order_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  total_amount NUMERIC(10,2) NOT NULL,
+  status VARCHAR(20) NOT NULL,
+  FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
+
+CREATE TABLE products (
+  id VARCHAR(255) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description VARCHAR(255) NOT NULL,
+  price FLOAT NOT NULL,
+  category VARCHAR(255) NOT NULL,
+  image_url VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  UNIQUE (id)
+);

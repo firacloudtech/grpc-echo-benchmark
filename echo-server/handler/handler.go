@@ -3,12 +3,15 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/firacloudtech/grpc-echo-benchmark/redis"
+	"github.com/firacloudtech/grpc-echo-benchmark/db"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
+	"github.com/lib/pq"
+	_ "github.com/lib/pq"
 )
 
 type (
@@ -51,19 +54,27 @@ func (h *Handler) CreateProduct(c echo.Context) error {
 	product.CreatedAt = time.Now()
 	product.UpdatedAt = time.Now()
 
-	result := redis.Client.SScan(ctx, "product", 0, product).Result()
+	queries := db.New(db.Db)
 
-	log.Infof("index is: %v", result)
-
-	if result >= 0 {
-		return c.String(http.StatusBadRequest, "Item already exists: "+err2.Error())
+	params := db.CreateProductParams{
+		ID:          product.ID,
+		Name:        product.Name,
+		Description: product.Description,
+		Price:       product.Price,
+		Category:    product.Category,
+		ImageUrl:    product.ImageURL,
+		CreatedAt:   product.CreatedAt,
+		UpdatedAt:   product.UpdatedAt,
 	}
 
-	_, err := redis.Client.RPush(ctx, "products",
-		product).Result()
+	result, err := queries.CreateProduct(ctx, params)
+	log.Infof("index is: %v", result)
+	if err, ok := err.(*pq.Error); ok {
+		fmt.Println("pq error:", err.Code.Name())
+	}
 
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Unable to save to redis: "+err.Error())
+		return c.String(http.StatusInternalServerError, "Unable to save to db: "+err.Error())
 	}
 
 	return c.JSON(http.StatusCreated, product)

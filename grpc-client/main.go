@@ -45,12 +45,18 @@ func run() error {
 		orderClient:   orderv1.NewOrderServiceClient(conn),
 	}
 
-	if _, err := combinedClient.productClient.CreateProduct(context.Background(), &productv1.CreateProductRequest{
-		Name: "Yogen",
-	}); err != nil {
+	result, err := combinedClient.productClient.CreateProduct(context.Background(), &productv1.CreateProductRequest{
+		Name:        "Yogen",
+		Description: "Demo",
+		Category:    "human",
+		Price:       12.00,
+		Url:         "",
+	})
+
+	if err != nil {
 		return fmt.Errorf("failed to CreateProduct: %w", err)
 	}
-	log.Println("Successfully Created product")
+	log.Printf("Successfully Created product, %v", result)
 
 	if _, err := combinedClient.orderClient.CreateOrder(context.Background(), &orderv1.CreateOrderRequest{
 		Name: "Yogen",

@@ -169,13 +169,42 @@
       "properties": {
         "name": {
           "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number",
+          "format": "float"
+        },
+        "category": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
         }
       }
     },
     "v1CreateProductResponse": {
       "type": "object",
       "properties": {
-        "message": {
+        "id": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number",
+          "format": "float"
+        },
+        "category": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "name": {
           "type": "string"
         }
       }

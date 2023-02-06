@@ -10,8 +10,12 @@ import (
 	"time"
 
 	// import module using buf
+	"github.com/firacloudtech/grpc-echo-benchmark/db"
 	orderv1 "github.com/firacloudtech/grpc-echo-benchmark/gen/go/order/v1"
 	productv1 "github.com/firacloudtech/grpc-echo-benchmark/gen/go/product/v1"
+	"github.com/google/uuid"
+	"github.com/lib/pq"
+	_ "github.com/lib/pq"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -37,6 +41,8 @@ func NewServer() *combinedServer {
 }
 
 func main() {
+	db.InitDB()
+	defer db.Db.Close()
 	wg.Add(2)
 	go func() {
 		if err := run(); err != nil {
@@ -144,12 +150,54 @@ func runGrpcGateway() error {
 // a function that creates a product and return the response
 func (s *combinedServer) CreateProduct(ctx context.Context, req *productv1.CreateProductRequest) (*productv1.CreateProductResponse, error) {
 
-	name := req.GetName()
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return nil, err
+	}
+	product := &db.Product{
+		ID:          id.String(),
+		Name:        req.GetName(),
+		Description: req.GetDescription(),
+		Price:       float64(req.GetPrice()),
+		Category:    req.GetCategory(),
+		ImageUrl:    req.GetUrl(),
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
 
-	log.Printf("Received a request to create a product: %v\n", name)
+	queries := db.New(db.Db)
+
+	params := db.CreateProductParams{
+		ID:          product.ID,
+		Name:        product.Name,
+		Description: product.Description,
+		Price:       product.Price,
+		Category:    product.Category,
+		ImageUrl:    product.ImageUrl,
+		CreatedAt:   product.CreatedAt,
+		UpdatedAt:   product.UpdatedAt,
+	}
+
+	result, err := queries.CreateProduct(ctx, params)
+
+	log.Printf("index is: %v", result)
+	if err, ok := err.(*pq.Error); ok {
+		fmt.Println("pq error:", err.Code.Name())
+	}
+
+	log.Printf("Received a request to create a product: %v\n", result)
+
+	if err != nil {
+		fmt.Print("Unable to save to db: " + err.Error())
+		return nil, err
+	}
 
 	return &productv1.CreateProductResponse{
-		Message: "Product created successfully",
+		Id:          result.ID,
+		Name:        result.Name,
+		Description: result.Description,
+		Category:    result.Category,
+		Url:         result.ImageUrl,
 	}, nil
 
 }
