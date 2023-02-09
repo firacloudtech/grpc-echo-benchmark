@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/firacloudtech/grpc-echo-benchmark/db"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	"github.com/lib/pq"
@@ -56,8 +57,25 @@ func (h *Handler) CreateProduct(c echo.Context) error {
 
 	queries := db.New(db.Db)
 
+	rows, err := queries.ListProducts(ctx, db.ListProductsParams{
+		Name:        product.Name,
+		Description: product.Description,
+		Price:       product.Price,
+		Category:    product.Category,
+	})
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	if len(rows) > 0 {
+		return c.String(http.StatusConflict, "product already exists, id: "+rows[0].ID)
+	}
+
+	id := uuid.New()
+
 	params := db.CreateProductParams{
-		ID:          product.ID,
+		ID:          id.String(),
 		Name:        product.Name,
 		Description: product.Description,
 		Price:       product.Price,

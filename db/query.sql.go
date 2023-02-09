@@ -52,3 +52,87 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 	)
 	return i, err
 }
+
+const getProduct = `-- name: GetProduct :one
+Select id, name, description, price, category, image_url, created_at, updated_at from products
+WHERE name = $1 AND description = $2 AND category = $3 AND price = $4
+LIMIT 1
+`
+
+type GetProductParams struct {
+	Name        string
+	Description string
+	Category    string
+	Price       float64
+}
+
+func (q *Queries) GetProduct(ctx context.Context, arg GetProductParams) (Product, error) {
+	row := q.db.QueryRowContext(ctx, getProduct,
+		arg.Name,
+		arg.Description,
+		arg.Category,
+		arg.Price,
+	)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Price,
+		&i.Category,
+		&i.ImageUrl,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const listProducts = `-- name: ListProducts :many
+Select id, name, description, price, category, image_url, created_at, updated_at from products
+WHERE name = $1 AND description = $2 AND category = $3 AND price = $4
+ORDER BY id
+`
+
+type ListProductsParams struct {
+	Name        string
+	Description string
+	Category    string
+	Price       float64
+}
+
+func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]Product, error) {
+	rows, err := q.db.QueryContext(ctx, listProducts,
+		arg.Name,
+		arg.Description,
+		arg.Category,
+		arg.Price,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Product
+	for rows.Next() {
+		var i Product
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Price,
+			&i.Category,
+			&i.ImageUrl,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

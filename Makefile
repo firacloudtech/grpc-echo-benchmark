@@ -9,3 +9,6 @@ run-echo:
 
 run-client:
 	cd ./grpc-client && go run main.go
+
+sql-generate:
+	sqlc generate
