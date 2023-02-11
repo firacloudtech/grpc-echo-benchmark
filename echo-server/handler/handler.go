@@ -42,7 +42,14 @@ func (m *Product) UnmarshalBinary(data []byte) error {
 	return json.Unmarshal(data, m)
 }
 
-// Handlers
+// CreateProduct godoc
+// @Summary Create a new product
+// @Description Create a new product
+// @Tags root
+// @Accept */*
+// @Produce json
+// @Success 200
+// @Router /products [post]
 func (h *Handler) CreateProduct(c echo.Context) error {
 	product := new(Product)
 
