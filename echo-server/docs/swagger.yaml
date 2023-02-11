@@ -1,0 +1,51 @@
+basePath: /
+definitions:
+  handler.Product:
+    properties:
+      category:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      updated_at:
+        type: string
+    type: object
+host: localhost:3002
+info:
+  contact: {}
+  description: This is a simple echo server
+  license:
+    name: Apache 2.0
+  title: Simple Echo Service
+  version: "1.0"
+paths:
+  /products:
+    post:
+      consumes:
+      - '*/*'
+      description: Create a new product
+      parameters:
+      - description: Product
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/handler.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Create a new product
+      tags:
+      - root
+swagger: "2.0"
