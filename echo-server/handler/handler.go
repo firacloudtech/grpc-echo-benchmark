@@ -47,6 +47,7 @@ func (m *Product) UnmarshalBinary(data []byte) error {
 // @Description Create a new product
 // @Tags root
 // @Accept */*
+// @Param product body Product true "Product"
 // @Produce json
 // @Success 200
 // @Router /products [post]

@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	_ "github.com/firacloudtech/grpc-echo-benchmark/echo-server/docs/echoswagger"
+	_ "github.com/firacloudtech/grpc-echo-benchmark/echo-server/docs"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
@@ -37,7 +37,7 @@ func main() {
 	e.Use(middleware.CORS())
 
 	// Routes
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	e.GET("/docs/*", echoSwagger.WrapHandler)
 	e.POST("/products", h.CreateProduct)
 
 	address := ":" + strconv.Itoa(echoPort)

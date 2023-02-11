@@ -12,3 +12,6 @@ run-client:
 
 sql-generate:
 	sqlc generate
+
+echo-swagger-generate:
+	swag init -g echo-server/main.go --output echo-server/docs
