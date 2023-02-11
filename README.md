@@ -46,3 +46,17 @@ INSERT INTO products
 (id, name, description, price, category, image_url, created_at, updated_at)
  VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
  RETURNING *;`
+
+
+ ## swagger
+In case there is a change in the swagger configuration for the echo-server, you would need to run the following command to the see the changes.
+
+`make echo-swagger-generate`
+
+To view the swagger docs for each service,
+
+### gRPC server Swagger Documentation
+http://localhost:3001/docs/
+
+### Echo server Swagger Documentation
+http://localhost:3002/docs/
