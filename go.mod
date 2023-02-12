@@ -45,3 +45,5 @@ replace github.com/firacloudtech/grpc-echo-benchmark/echo-server/handler v0.0.0 
 replace github.com/firacloudtech/grpc-echo-benchmark/db v0.0.0 => ../db
 
 replace github.com/firacloudtech/grpc-echo-benchmark/echo-server v0.0.0 => ../echo-server
+
+replace github.com/firacloudtech/grpc-echo-benchmark/api v0.0.0 => ../api

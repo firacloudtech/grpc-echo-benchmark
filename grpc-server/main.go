@@ -41,8 +41,10 @@ func NewServer() *combinedServer {
 }
 
 func main() {
+	// initialize DB
 	db.InitDB()
 	defer db.Db.Close()
+
 	wg.Add(2)
 	go func() {
 		if err := run(); err != nil {
